@@ -2,7 +2,7 @@
 using Microsoft.Owin.Security.Cookies;
 using Owin;
 
-namespace NakedIdentity.Mvc
+namespace ASPNetMVC5Identity
 {
     //To initialize the OWIN identity components we need to add a Startup class to the project.
     //This class should have a method Configuration that takes an OWIN IAppBuilder instance as a parameter. 

@@ -6,11 +6,10 @@ using System.Web.Mvc;
 
 namespace ASPNetMVC5Identity.Controllers
 {
-    [Authorize]
-    public class HomeController : Controller
+    public class AuthController : Controller
     {
-        // GET: Home
-        public ActionResult Index()
+        // GET: Auth
+        public ActionResult LogIn()
         {
             return View();
         }
