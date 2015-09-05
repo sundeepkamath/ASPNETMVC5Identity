@@ -9,7 +9,7 @@ namespace ASPNetMVC5Identity.Controllers
     public class AuthController : Controller
     {
         // GET: Auth
-        public ActionResult LogIn()
+        public ActionResult Login()
         {
             return View();
         }
