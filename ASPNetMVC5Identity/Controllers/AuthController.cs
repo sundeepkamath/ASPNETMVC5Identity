@@ -17,6 +17,10 @@ namespace ASPNetMVC5Identity.Controllers
     {
         private  AppUserManager _userManager;
 
+        public AuthController()
+        {
+
+        }
         public AuthController(AppUserManager userManager)
         {
             UserManager = userManager;
@@ -103,6 +107,12 @@ namespace ASPNetMVC5Identity.Controllers
 
             authManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
             return RedirectToAction("index","Home");
+        }
+
+        [HttpGet]
+        public ActionResult Register()
+        {
+            return View();
         }
     }
 }
