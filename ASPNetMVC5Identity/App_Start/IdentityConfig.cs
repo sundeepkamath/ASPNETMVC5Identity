@@ -6,6 +6,7 @@ using Microsoft.Owin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,7 +49,23 @@ namespace ASPNetMVC5Identity.App_Start
             userManager.DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(5);
             userManager.MaxFailedAccessAttemptsBeforeLockout = 5;
 
+            userManager.ClaimsIdentityFactory = new AppUserClaimsIdentityFactory();
             return userManager;
         }
+       
+    }
+
+    public class AppUserClaimsIdentityFactory : ClaimsIdentityFactory<AppUser>
+    {
+
+        public override async Task<ClaimsIdentity> CreateAsync(UserManager<AppUser, string> manager, AppUser user, string authenticationType)
+        {
+            var identity = await base.CreateAsync(manager, user, authenticationType);
+            identity.AddClaim(new Claim(ClaimTypes.Country, user.Country));
+
+            return identity;
+        }
+
+
     }
 }

@@ -69,11 +69,7 @@ namespace ASPNetMVC5Identity.Controllers
 
             if (user != null)
             {
-                var identity = await UserManager.CreateIdentityAsync(
-                    user, DefaultAuthenticationTypes.ApplicationCookie);
-
-                GetAuthenticationManager().SignIn(identity);
-
+                await SignIn(user);
                 return Redirect(GetRedirectUrl(model.ReturnUrl));
             }
 
@@ -113,6 +109,45 @@ namespace ASPNetMVC5Identity.Controllers
         public ActionResult Register()
         {
             return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Register(RegisterModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+
+            var user = new AppUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                Country = model.Country
+            };
+
+            var result = await UserManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+                await SignIn(user);
+                return RedirectToAction("index", "home");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error);
+            }
+
+            return View();
+        }
+
+        private async Task SignIn(AppUser user)
+        {
+            var identity = await UserManager.CreateIdentityAsync(
+                                                user, DefaultAuthenticationTypes.ApplicationCookie);
+
+            GetAuthenticationManager().SignIn(identity);
         }
     }
 }
