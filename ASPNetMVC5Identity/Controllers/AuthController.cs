@@ -1,4 +1,5 @@
-﻿using ASPNetMVC5Identity.Models;
+﻿using ASPNetMVC5Identity.App_Start;
+using ASPNetMVC5Identity.Models;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
@@ -6,11 +7,42 @@ using System.Linq;
 using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.AspNet.Identity.Owin;
+using System.Threading.Tasks;
+using Microsoft.Owin.Security;
 
 namespace ASPNetMVC5Identity.Controllers
 {
     public class AuthController : Controller
     {
+        private  AppUserManager _userManager;
+
+        public AuthController(AppUserManager userManager)
+        {
+            UserManager = userManager;
+        }
+
+        public AppUserManager UserManager
+        {
+            get
+            {
+                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+            }
+            private set
+            {
+                _userManager = value;
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && UserManager != null)
+            {
+                UserManager.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
         [HttpGet]
         public ActionResult Login(string returnUrl)
         {
@@ -22,29 +54,21 @@ namespace ASPNetMVC5Identity.Controllers
         }
 
         [HttpPost]
-        public ActionResult Login(LoginModel model)
+        public async Task<ActionResult> Login(LoginModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View();
             }
 
-            // The user related information have been hardcoded for the time being.
-            // In production, the hard coded values would be fetched from the database using the new ASP.Net Identity UserManager.
-            if (model.Email == "admin@admin.com" && model.Password == "password")
+            var user = await UserManager.FindAsync(model.Email, model.Password);
+
+            if (user != null)
             {
-                var identity = new ClaimsIdentity(
-                    new[] {
-                            new Claim(ClaimTypes.Name, "Sundeep"),
-                            new Claim(ClaimTypes.Email, "sk@test.com"),
-                            new Claim(ClaimTypes.Country, "India")
-                          },
-                    DefaultAuthenticationTypes.ApplicationCookie);
+                var identity = await UserManager.CreateIdentityAsync(
+                    user, DefaultAuthenticationTypes.ApplicationCookie);
 
-                var ctx = Request.GetOwinContext();
-                var authManager = ctx.Authentication;
-
-                authManager.SignIn(identity);
+                GetAuthenticationManager().SignIn(identity);
 
                 return Redirect(GetRedirectUrl(model.ReturnUrl));
             }
@@ -52,6 +76,14 @@ namespace ASPNetMVC5Identity.Controllers
             // In case user authentication fails.
             ModelState.AddModelError("", "Invalid email or password");
             return View();
+        }
+
+        private IAuthenticationManager GetAuthenticationManager()
+        {
+            var ctx = Request.GetOwinContext();
+            var authManager = ctx.Authentication;
+
+            return authManager;
         }
 
         private string GetRedirectUrl(string returnUrl)
