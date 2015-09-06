@@ -1,6 +1,7 @@
 ﻿using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
+using Microsoft.AspNet.Identity;
 
 namespace ASPNetMVC5Identity
 {
@@ -13,7 +14,7 @@ namespace ASPNetMVC5Identity
         {
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
-                AuthenticationType =  "ApplicationCookie",
+                AuthenticationType =  DefaultAuthenticationTypes.ApplicationCookie,
                 LoginPath = new PathString("/auth/login")
             });
         }

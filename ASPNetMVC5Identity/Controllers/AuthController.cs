@@ -1,4 +1,5 @@
 ﻿using ASPNetMVC5Identity.Models;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +39,7 @@ namespace ASPNetMVC5Identity.Controllers
                             new Claim(ClaimTypes.Email, "sk@test.com"),
                             new Claim(ClaimTypes.Country, "India")
                           },
-                    "ApplicationCookie");
+                    DefaultAuthenticationTypes.ApplicationCookie);
 
                 var ctx = Request.GetOwinContext();
                 var authManager = ctx.Authentication;
@@ -68,7 +69,7 @@ namespace ASPNetMVC5Identity.Controllers
             var ctx = Request.GetOwinContext();
             var authManager = ctx.Authentication;
 
-            authManager.SignOut("ApplicationCookie");
+            authManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
             return RedirectToAction("index","Home");
         }
     }
